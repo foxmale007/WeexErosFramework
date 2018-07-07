@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.ExifInterface;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -112,7 +113,7 @@ public class DefaultImageAdapter {
                         (SystemClock.currentThreadTimeMillis())).getAbsolutePath();
                 String imageFileUrl = ImageUtil.zoomImage(context, bitmap, bean == null ? 0 :
                         (int) bean.imageWidth, Constant
-                        .ImageConstants.BIGGESTWIDTH, path);
+                        .ImageConstants.BIGGESTWIDTH, readExifRotate(item.path), path);
                 imagesFilrUrl.add(imageFileUrl);
                 bitmap.recycle();
 
@@ -165,6 +166,25 @@ public class DefaultImageAdapter {
 //
 //        }
 //    }
+
+    private int readExifRotate(String imagePath){
+        try {
+            ExifInterface exifInterface = new ExifInterface(imagePath);
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    return 90;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    return 180;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    return 270;
+                default:
+                    return 0;
+            }
+        } catch (IOException e) {
+            return 0;
+        }
+    }
 
 }
 
